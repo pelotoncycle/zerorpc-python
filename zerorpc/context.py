@@ -47,6 +47,7 @@ class Context(zmq.Context):
             'client_after_request': []
         }
         self._reset_msgid()
+        self.MAX_SOCKETS = 100000
 
     # NOTE: pyzmq 13.0.0 messed up with setattr (they turned it into a
     # non-op) and you can't assign attributes normally anymore, hence the
