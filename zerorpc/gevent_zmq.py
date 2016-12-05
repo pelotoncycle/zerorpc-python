@@ -37,6 +37,7 @@ import errno
 from logging import getLogger
 
 logger = getLogger(__name__)
+CURRENT_OPEN_SOCKETS = 0
 
 class Context(_zmq.Context):
 
@@ -95,11 +96,14 @@ class Socket(_zmq.Socket):
                 # gevent<1.0
                 self._state_event.cancel()
         super(Socket, self).close()
+        CURRENT_OPEN_SOCKETS -= 1
 
     def connect(self, *args, **kwargs):
         while True:
             try:
-                return super(Socket, self).connect(*args, **kwargs)
+                opened_socket = super(Socket, self).connect(*args, **kwargs)
+                CURRENT_OPEN_SOCKETS += 1
+                return opened_socket
             except _zmq.ZMQError, e:
                 if e.errno not in (_zmq.EAGAIN, errno.EINTR):
                     raise
