@@ -45,8 +45,8 @@ def current_open_sockets():
         open_sockets = f.read()
     with open(CLOSED_SOCKETS_FILE, 'r') as f:
         closed_sockets = f.read()
-    open_sockets = open_sockets.count('1')
-    closed_sockets = closed_sockets.count('1')
+    open_sockets = len(open_sockets)
+    closed_sockets = len(closed_sockets)
     return open_sockets - closed_sockets
 
 
