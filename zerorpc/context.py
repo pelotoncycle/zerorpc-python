@@ -25,6 +25,7 @@
 
 import uuid
 import random
+import os
 
 import gevent_zmq as zmq
 
@@ -48,6 +49,10 @@ class Context(zmq.Context):
         }
         self._reset_msgid()
         self.MAX_SOCKETS = 100000
+        if os.path.exists(zmq.OPEN_SOCKETS_FILE):
+            os.unlink(zmq.OPEN_SOCKETS_FILE)
+        if os.path.exists(zmq.CLOSED_SOCKETS_FILE):
+            os.unlink(zmq.CLOSED_SOCKETS_FILE)
 
     # NOTE: pyzmq 13.0.0 messed up with setattr (they turned it into a
     # non-op) and you can't assign attributes normally anymore, hence the

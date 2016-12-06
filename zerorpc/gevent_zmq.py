@@ -37,7 +37,18 @@ import errno
 from logging import getLogger
 
 logger = getLogger(__name__)
-CURRENT_OPEN_SOCKETS = 0
+OPEN_SOCKETS_FILE = '/tmp/0rpc_0mq_open_sockets.txt'
+CLOSED_SOCKETS_FILE = '/tmp/0rpc_0mq_closed_sockets.txt'
+
+def current_open_sockets():
+    with open(OPEN_SOCKETS_FILE, 'r') as f:
+        open_sockets = f.read()
+    with open(CLOSED_SOCKETS_FILE, 'r') as f:
+        closed_sockets = f.read()
+    open_sockets = open_sockets.count('1')
+    closed_sockets = closed_sockets.count('1')
+    return open_sockets - closed_sockets
+
 
 class Context(_zmq.Context):
 
@@ -96,13 +107,21 @@ class Socket(_zmq.Socket):
                 # gevent<1.0
                 self._state_event.cancel()
         super(Socket, self).close()
-        CURRENT_OPEN_SOCKETS -= 1
+        try:
+            with open(CLOSED_SOCKETS_FILE, 'a') as f:
+                f.write('1')
+        except:
+            pass
 
     def connect(self, *args, **kwargs):
         while True:
             try:
                 opened_socket = super(Socket, self).connect(*args, **kwargs)
-                CURRENT_OPEN_SOCKETS += 1
+                try:
+                    with open(OPEN_SOCKETS_FILE, 'a') as f:
+                        f.write('1')
+                except:
+                    pass
                 return opened_socket
             except _zmq.ZMQError, e:
                 if e.errno not in (_zmq.EAGAIN, errno.EINTR):
