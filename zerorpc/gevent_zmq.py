@@ -43,6 +43,7 @@ class Context(_zmq.Context):
     def socket(self, socket_type):
         if self.closed:
             raise _zmq.ZMQError(_zmq.ENOTSUP)
+        self.MAX_SOCKETS = 100000
         return Socket(self, socket_type)
 
 
