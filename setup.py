@@ -34,7 +34,7 @@ except ImportError:
 
 requirements = [
     'gevent',
-    'msgpack-python',
+    'msgpack-python==0.5.2',
     'pyzmq==13.1.0'
 ]
 if sys.version_info < (2, 7):
